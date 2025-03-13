@@ -365,11 +365,18 @@ class NotionHelper:
         # 动态获取父块 ID  
         try:  
             block_info = self.client.blocks.retrieve(block_id=after)  
+            print(f"Debug: Block info for block_id={after}: {block_info}")  
+    
+            # 检查 block_info["parent"] 是否存在且包含 block_id  
+            if "parent" not in block_info or "block_id" not in block_info["parent"]:  
+                raise ValueError(f"Parent block_id not found for block_id={after}")  
+    
             parent_id = block_info["parent"]["block_id"]  
             print(f"Debug: Retrieved parent_id={parent_id} for block_id={after}")  
         except Exception as e:  
             print(f"Error: Failed to retrieve block info for block_id={after}. Error: {e}")  
             raise  
+    
         # 确保 block_id 是 parent_id 的子块  
         try:  
             return self.client.blocks.children.append(  
