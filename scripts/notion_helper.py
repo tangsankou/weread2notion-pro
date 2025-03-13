@@ -4,6 +4,7 @@ import re
 import time
 
 from notion_client import Client
+from notion_client.errors import APIResponseError  
 from retrying import retry
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -372,7 +373,7 @@ class NotionHelper:
         # 确保 block_id 是 parent_id 的子块  
         try:  
             return self.client.blocks.children.append(  
-                block_id=block_id,  
+                block_id=parent_id,  
                 children=children,  
                 after=after  
             )  
