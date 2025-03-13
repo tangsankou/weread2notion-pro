@@ -187,6 +187,8 @@ def append_blocks(id, contents):
     l = []
     for content in contents:
         if len(blocks) == 100:
+            print("----------id-----------",id)
+            print("-----before_block_id------",before_block_id)
             results = append_blocks_to_notion(id, blocks, before_block_id, sub_contents)
             before_block_id = results[-1].get("blockId")
             l.extend(results)
