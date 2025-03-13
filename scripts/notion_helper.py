@@ -358,9 +358,27 @@ class NotionHelper:
 
     @retry(stop_max_attempt_number=3, wait_fixed=5000)
     def append_blocks_after(self, block_id, children, after):
-        return self.client.blocks.children.append(
-            block_id=block_id, children=children, after=after
-        )
+        # return self.client.blocks.children.append(
+        #     block_id=block_id, children=children, after=after
+        # )
+        # 动态获取父块 ID  
+        try:  
+            block_info = self.client.blocks.retrieve(block_id=after)  
+            parent_id = block_info["parent"]["block_id"]  
+            print(f"Debug: Retrieved parent_id={parent_id} for block_id={after}")  
+        except Exception as e:  
+            print(f"Error: Failed to retrieve block info for block_id={after}. Error: {e}")  
+            raise  
+        # 确保 block_id 是 parent_id 的子块  
+        try:  
+            return self.client.blocks.children.append(  
+                block_id=block_id,  
+                children=children,  
+                after=after  
+            )  
+        except APIResponseError as e:  
+            print(f"Error: {e}")  
+            raise  
 
     @retry(stop_max_attempt_number=3, wait_fixed=5000)
     def delete_block(self, block_id):
