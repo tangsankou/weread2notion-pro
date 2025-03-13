@@ -367,11 +367,21 @@ class NotionHelper:
             block_info = self.client.blocks.retrieve(block_id=after)  
             print(f"Debug: Block info for block_id={after}: {block_info}")  
     
-            # 检查 block_info["parent"] 是否存在且包含 block_id  
-            if "parent" not in block_info or "block_id" not in block_info["parent"]:  
-                raise ValueError(f"Parent block_id not found for block_id={after}")  
+            # 检查 block_info["parent"] 是否存在  
+            if "parent" not in block_info:  
+                raise ValueError(f"Parent not found for block_id={after}")  
     
-            parent_id = block_info["parent"]["block_id"]  
+            parent = block_info["parent"]  
+            parent_type = parent["type"]  
+    
+            # 根据 parent_type 获取 parent_id  
+            if parent_type == "block_id":  
+                parent_id = parent["block_id"]  
+            elif parent_type == "page_id":  
+                parent_id = parent["page_id"]  
+            else:  
+                raise ValueError(f"Unsupported parent type: {parent_type}")  
+    
             print(f"Debug: Retrieved parent_id={parent_id} for block_id={after}")  
         except Exception as e:  
             print(f"Error: Failed to retrieve block info for block_id={after}. Error: {e}")  
@@ -386,7 +396,7 @@ class NotionHelper:
             )  
         except APIResponseError as e:  
             print(f"Error: {e}")  
-            raise  
+            raise    
 
     @retry(stop_max_attempt_number=3, wait_fixed=5000)
     def delete_block(self, block_id):
